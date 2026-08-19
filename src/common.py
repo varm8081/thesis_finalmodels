@@ -110,51 +110,21 @@ RATIO = [
     "Current_Ratio_vs_industry_mean", "Current_Ratio_industry_rank_pct",
 ]
 
-# ---- The 7 feature sets (named to match PROJECT_STATE for continuity) ----
-GROUP_A_ALTMAN_CORE = ALT_X + ["z_score_book", "z_score_market",
-                               "z_score_book_lag1", "z_score_market_lag1"]
-# Original project Group_B = current-period financial-health RATIOS (verified:
-# SVM-RBF on this set reproduces AUC ~0.84, matching the 0.632 F1 benchmark).
-GROUP_B_FINANCIAL_HEALTH = list(dict.fromkeys(RATIO))
-GROUP_C_DYNAMIC_TEMPORAL = LAG1 + YOY
-GROUP_D_HYBRID_EXTENDED = list(dict.fromkeys(
-    GROUP_A_ALTMAN_CORE + GROUP_B_FINANCIAL_HEALTH + GROUP_C_DYNAMIC_TEMPORAL + ZSCORE))
-# Top-30 curated from SHAP findings + literature (parsimonious)
-_GROUP_E_CURATED = [
-    "ocf_to_finance_cost_lag1", "Return_on_Assets_lag1", "Interest_Coverage_Ratio_lag1",
-    "Quick_Ratio_lag1", "Total_Debt_to_Total_Assets_lag1",
-    "Operating_Cash_Flow_to_Total_Debt_lag1", "Net_OCF_growth_1y",
-    "ocf_to_finance_cost_change_1y", "Debt_to_Equity_lag1", "Net_OCF_lag1",
-    "z_score_book", "z_score_market", "z_score_book_lag1", "z_score_market_lag1",
-    "Return_on_Equity_lag1", "Debt_Ratio_lag1", "Current_Ratio_lag1",
-    "Interest_Coverage_Ratio", "Quick_Ratio", "Debt_to_Equity",
-    "Total_Debt_to_Total_Assets", "Operating_Cash_Flow_to_Total_Debt",
-    "ocf_to_finance_cost", "Return_on_Assets", "Return_on_Equity",
-    "Net_OCF_growth_1y", "Net_Income_growth_1y", "Revenue_growth_1y",
-    "Net_OCF", "Debt_Ratio",
-]
-GROUP_E_TOP30_STAGE1 = list(dict.fromkeys(_GROUP_E_CURATED))[:30]
-GROUP_F_LITERATURE = [
-    "z_score_book", "z_score_market", "Debt_Ratio", "Interest_Coverage_Ratio",
-    "Current_Ratio", "Quick_Ratio", "Return_on_Assets", "Return_on_Equity",
-    "Total_Debt_to_Total_Assets", "Debt_to_Equity", "Operating_Cash_Flow_to_Total_Debt",
-    "ocf_to_finance_cost", "Net_OCF", "Operating_Income", "Net_Income",
-    "Revenue", "X1", "X2", "X3", "X5", "Cash_Ratio", "Long_Term_Debt_Ratio",
-    "Return_on_Assets_lag1", "Debt_Ratio_lag1", "Quick_Ratio_lag1",
-    "Interest_Coverage_Ratio_lag1"]
-ENGINEERED = list(dict.fromkeys(LAG1 + YOY + ZSCORE + RATIO + ALT_X))
-GROUP_G_STAGE1_SELECTED = ENGINEERED  # comprehensive engineered set
+# ----------------------------------------------------------------------------
+# Feature sets: load the EXACT original definitions from 07_feature_sets.json
+# (validated against merged_clean.xlsx — all features present).
+# ----------------------------------------------------------------------------
+import json as _json
 
-FEATURE_SETS = {
-    "Group_A_Altman_Core": GROUP_A_ALTMAN_CORE,
-    "Group_B_Financial_Health": GROUP_B_FINANCIAL_HEALTH,
-    "Group_C_Dynamic_Temporal": GROUP_C_DYNAMIC_TEMPORAL,
-    "Group_D_Hybrid_Extended": GROUP_D_HYBRID_EXTENDED,
-    "Group_E_Top30_Stage1": GROUP_E_TOP30_STAGE1,
-    "Group_F_Literature": GROUP_F_LITERATURE,
-    "Group_G_Stage1_Selected": GROUP_G_STAGE1_SELECTED,
-}
+_ORIG_JSON = os.path.join(DATA_RAW, "07_feature_sets.json")
 
+
+def _load_orig_sets():
+    with open(_ORIG_JSON) as f:
+        return _json.load(f)["feature_sets"]
+
+
+FEATURE_SETS = _load_orig_sets()
 # CatBoost gets the industry code as a categorical bonus
 CATBOOST_CAT_COLS = ["industry"]
 

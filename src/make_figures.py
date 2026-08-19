@@ -1,3 +1,4 @@
+import json
 """
 Generate presentation figures for the dashboard from the experiment results.
 Produces:
@@ -53,8 +54,20 @@ def fig_confusion(df):
     cm = best.get("confusion_matrix")
     if isinstance(cm, str):
         try: cm = eval(cm)
-        except Exception: return None
-    cm = np.array(cm)
+        except Exception: cm = None
+    if cm is None or (isinstance(cm, float) and np.isnan(cm)):
+        cm = None
+    # Fallback: load the persisted winning-model summary (has the real CM)
+    if cm is None:
+        sj = os.path.join(RESULTS_DIR, "best_model_summary.json")
+        if os.path.exists(sj):
+            try:
+                cm = json.load(open(sj)).get("confusion_matrix")
+            except Exception:
+                cm = None
+    if cm is None:
+        return None
+    cm = np.array(cm, dtype=int)
     fig, ax = plt.subplots(figsize=(4.5, 4))
     im = ax.imshow(cm, cmap="Blues")
     ax.set_xticks([0, 1]); ax.set_yticks([0, 1])

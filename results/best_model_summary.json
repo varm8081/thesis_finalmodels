@@ -1,0 +1,34 @@
+{
+  "model": "SVM_RBF_cost_sensitive",
+  "params": {
+    "C": 2.0,
+    "gamma": 0.03,
+    "class_weight": {
+      "0": 1,
+      "1": 3
+    },
+    "probability": true,
+    "random_state": 42
+  },
+  "feature_set": "Group_B_Financial_Health",
+  "n_features": 21,
+  "threshold": 0.45,
+  "test_f1": 0.6714,
+  "test_recall": 0.8246,
+  "test_precision": 0.5663,
+  "test_accuracy": 0.8238,
+  "test_auc": 0.8528,
+  "confusion_matrix": [
+    [
+      168,
+      36
+    ],
+    [
+      10,
+      47
+    ]
+  ],
+  "n_test": 261,
+  "n_test_distress": 57,
+  "beats_baseline_0632": true
+}
