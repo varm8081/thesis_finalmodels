@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# CatBoost temp files
+catboost_info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (keep raw source small; processed can be large)
+data/processed/*.csv
+data/processed/*.parquet
+!data/raw/merged_clean.xlsx
+
+# Model artifacts (large binaries) — keep only if needed
+models/*.joblib
+models/*.cbm
+
+# Logs
+*.log
+.ipynb_checkpoints/

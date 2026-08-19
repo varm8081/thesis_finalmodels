@@ -1,0 +1,13 @@
+feature_set,model,threshold,test_f1,test_recall,test_precision,test_accuracy,test_auc,test_pr_auc,confusion_matrix,n_test,n_test_distress
+Group_D_Hybrid_Extended,HistGBM_Optuna,0.2,0.5882,0.7895,0.4688,0.7586,0.8433,0.6125,"[[153, 51], [12, 45]]",261.0,57.0
+Group_D_Hybrid_Extended,CatBoost_calib_isotonic,0.32,0.5844,0.7895,0.4639,0.7548,0.8274,0.5598,"[[152, 52], [12, 45]]",,
+Group_E_Top30_Stage1,HistGBM_Optuna,0.44,0.5793,0.7368,0.4773,0.7663,0.8578,0.6425,"[[158, 46], [15, 42]]",261.0,57.0
+Group_F_Literature,CatBoost_Optuna,0.29,0.5758,0.6667,0.5067,0.7854,0.8488,0.6268,"[[167, 37], [19, 38]]",261.0,57.0
+Group_E_Top30_Stage1,CatBoost_calib_isotonic,0.3,0.5734,0.7193,0.4767,0.7663,0.8552,0.623,"[[159, 45], [16, 41]]",,
+Group_D_Hybrid_Extended,CatBoost_Optuna,0.36,0.5669,0.6316,0.5143,0.7893,0.8087,0.55,"[[170, 34], [21, 36]]",261.0,57.0
+Group_B_Financial_Health,CatBoost_Optuna,0.32,0.5612,0.6842,0.4756,0.7663,0.8166,0.6002,"[[161, 43], [18, 39]]",261.0,57.0
+Group_F_Literature,HistGBM_Optuna,0.23,0.5588,0.6667,0.481,0.7701,0.8247,0.5255,"[[163, 41], [19, 38]]",261.0,57.0
+Group_F_Literature,CatBoost_calib_isotonic,0.27,0.5584,0.7544,0.4433,0.7395,0.8583,0.6076,"[[150, 54], [14, 43]]",,
+Group_E_Top30_Stage1,CatBoost_Optuna,0.43,0.5426,0.614,0.4861,0.7739,0.851,0.626,"[[167, 37], [22, 35]]",261.0,57.0
+Group_B_Financial_Health,CatBoost_calib_isotonic,0.3,0.5419,0.7368,0.4286,0.728,0.7979,0.5531,"[[148, 56], [15, 42]]",,
+Group_B_Financial_Health,HistGBM_Optuna,0.35,0.5098,0.6842,0.4062,0.7126,0.7804,0.5045,"[[147, 57], [18, 39]]",261.0,57.0

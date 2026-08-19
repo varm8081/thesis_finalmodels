@@ -1,0 +1,22 @@
+# Core data + ML
+numpy<2
+pandas
+scikit-learn>=1.4
+scikit-learn
+imbalanced-learn
+scipy
+openpyxl
+
+# Gradient boosting (macOS-native, no OpenMP required)
+catboost
+# xgboost and lightgbm require libomp (brew install libomp) on macOS
+
+# Tuning + viz + dashboard
+optuna
+matplotlib
+seaborn
+joblib
+streamlit
+
+# SHAP (optional, for interpretability)
+# shap

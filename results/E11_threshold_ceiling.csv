@@ -1,0 +1,16 @@
+model,max_f1,thr_max_f1,f1_at_rec0_737,thr_rec0_737,f1_near_rec,test_auc,feature_set
+SVM_RBF,0.6301,0.35,0.3585,0.01,0.6286,0.84,Group_F_Literature
+RandomForest,0.6164,0.34,0.3677,0.01,0.5714,0.8639,Group_F_Literature
+Stack_SVM_CB_HG,0.6104,0.4,0.3585,0.01,0.6027,0.8478,Group_F_Literature
+HistGBM,0.608,0.36,0.4454,0.01,0.5985,0.8281,Group_D_Hybrid_Extended
+RandomForest,0.6053,0.39,0.3585,0.01,0.597,0.83,Group_D_Hybrid_Extended
+Stack_SVM_CB_HG,0.6029,0.46,0.3585,0.01,0.6029,0.825,Group_D_Hybrid_Extended
+CatBoost,0.5926,0.24,0.4286,0.01,0.5926,0.8437,Group_F_Literature
+HistGBM,0.5829,0.07,0.4622,0.01,0.5676,0.8426,Group_F_Literature
+CatBoost,0.5769,0.2,0.3972,0.01,0.5714,0.816,Group_D_Hybrid_Extended
+SVM_RBF,0.5752,0.31,0.3585,0.01,0.5752,0.7826,Group_D_Hybrid_Extended
+RandomForest,0.5658,0.41,0.3585,0.01,0.5658,0.7983,Group_B_Financial_Health
+SVM_RBF,0.5538,0.48,0.3585,0.01,0.529,0.781,Group_B_Financial_Health
+CatBoost,0.5512,0.29,0.3891,0.01,0.5181,0.7886,Group_B_Financial_Health
+Stack_SVM_CB_HG,0.5493,0.45,0.3585,0.01,0.5479,0.8122,Group_B_Financial_Health
+HistGBM,0.5414,0.35,0.3944,0.01,0.5,0.777,Group_B_Financial_Health

@@ -1,0 +1,8 @@
+feature_set,model,threshold,test_f1,test_recall,test_precision,test_accuracy,test_auc,test_pr_auc,confusion_matrix
+Group_F_Literature,Stack_SVM_CB_HG,0.43,0.597,0.7018,0.5195,0.7931,0.8547,0.602,"[[167, 37], [17, 40]]"
+Group_E_Top30_Stage1,Stack_SVM_CB_HG,0.48,0.5741,0.5439,0.6078,0.8238,0.8561,0.6322,"[[184, 20], [26, 31]]"
+Group_E_Top30_Stage1,CatBoost_BorderSMOTE,0.36,0.5546,0.5789,0.5323,0.7969,0.815,0.5639,"[[175, 29], [24, 33]]"
+Group_F_Literature,CatBoost_BorderSMOTE,0.32,0.5493,0.6842,0.4588,0.7548,0.8375,0.546,"[[158, 46], [18, 39]]"
+Group_B_Engineered,Stack_Eng,0.4,0.5479,0.7018,0.4494,0.7471,0.8174,0.5462,"[[155, 49], [17, 40]]"
+Group_B_Financial_Health,Stack_SVM_CB_HG,0.46,0.5246,0.5614,0.4923,0.7778,0.8025,0.5537,"[[171, 33], [25, 32]]"
+Group_B_Financial_Health,CatBoost_BorderSMOTE,0.21,0.5222,0.8246,0.3821,0.6705,0.791,0.4722,"[[128, 76], [10, 47]]"

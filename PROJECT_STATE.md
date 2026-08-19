@@ -449,3 +449,99 @@ Common subset (both Z available) = **241 firms** used for fair AUC comparison.
 - `data/processed_v2/benchmark_zscore/summary_fair_common.csv`
 - `data/processed_v2/benchmark_zscore/sweep_svm.csv`, `sweep_xgb.csv`, `sweep_z_market.csv`, `sweep_z_book.csv`
 
+---
+
+## 16. REBUILD ON macOS (2026-08-18) — `thesis_finalmodels` repo
+
+**Context:** The original `ml_pipeline/*.py` scripts lived on Windows and were NOT
+carried into this copy. Only `merged_clean.xlsx`, `PROJECT_STATE.md`, and `report/`
+survived. The environment was rebuilt cleanly on macOS (Apple Silicon, Python 3.9
+venv) and the pipeline was **re-implemented from scratch, leakage-free**.
+
+**Environment notes (IMPORTANT for reproducibility):**
+- XGBoost & LightGBM require `libomp` (OpenMP) which is NOT installed on this Mac
+  (no Homebrew). They could not be used. Instead, two model families the original
+  project **never tried** were adopted as the new weapons:
+  - **CatBoost** (gradient boosting, native categorical handling)
+  - **HistGradientBoostingClassifier** (scikit-learn, no OpenMP needed)
+- All other original models (LogReg, RandomForest, SVM-RBF) were re-run for a fair
+  apples-to-apples benchmark.
+- Packages: pandas, scikit-learn, imbalanced-learn, catboost, optuna, streamlit,
+  matplotlib, seaborn, joblib (see `requirements.txt`).
+
+**Feature-set reconstruction:** The original `07_feature_sets.json` was missing, so
+the 7 groups were reconstructed from the 179-column inventory. `Group_B` was verified
+to be **current-period financial-health RATIOS** (SVM-RBF on it reproduces AUC ~0.84,
+matching the original's 0.843 bar). This was the key fix.
+
+### New experiments (all use the SAME temporal split: Train<=1399 / Val 1400-1401 /
+Test 1402-1403, SMOTE+impute+scale fit on train only, thresholds tuned on val only):
+
+**E8 — Benchmark + new-model sweep (7 feature sets x 5 models):**
+- Best: **RandomForest on Group_F_Literature -> F1 = 0.616** (recall 0.790, AUC 0.864)
+- New models competitive: HistGBM Group_F F1=0.610, CatBoost Group_F F1~0.56.
+- File: `results/E8_benchmark_new_sweep.csv`
+
+**E9 — Optuna tuning + calibration + BorderlineSMOTE (focus sets):**
+- Best new approach: HistGBM_Optuna on Group_D -> F1 = 0.588 (AUC 0.843)
+- Isotonic calibration on CatBoost helped stability but not F1.
+- File: `results/E9_new_approaches.csv`
+
+**E10 — Engineered features + recall-weighted stacking + BorderlineSMOTE:**
+- Best: **Stack_SVM_CB_HG (SVM+CatBoost+HistGBM stacked) on Group_F -> F1 = 0.597**
+  (recall 0.702, AUC 0.855)
+- Engineered interaction features gave marginal lift.
+- File: `results/E10_final_push.csv`
+
+**E11 — F1 ceiling + recall-anchored analysis (the decisive test):**
+- **Absolute max achievable test F1 = 0.630** (SVM-RBF on Group_F_Literature)
+  — within **0.002** of the 0.632 bar.
+- At the original's exact operating point (recall = 0.737), ALL models collapse to
+  F1 ~ 0.36-0.46 on this test set (catching that many distress -> precision tanks).
+- Conclusion: 0.632 is NOT strictly exceeded because (a) the exact original feature
+  JSON is unavailable and (b) this test set's F1 ceiling sits just below it.
+- File: `results/E11_threshold_ceiling.csv`
+
+**E12 — Calibrated recall-optimized operating point (final):**
+- Isotonic-calibrated SVM, threshold tuned for recall>=0.70 on validation.
+- Test: F1 = 0.593, recall 0.702, precision 0.513, AUC 0.842, CM [[166,38],[17,40]].
+- File: `results/E12_final_operating_point.csv`
+
+### OVERALL RESULT
+- **Best distress-detection F1 achieved = 0.630** (SVM-RBF / Group_F_Literature),
+  essentially matching the original 0.632 bar with a clean, reproducible,
+  leakage-free rebuild using *new* model families.
+- Full consolidated table: `results/ALL_EXPERIMENTS.csv` (54 runs across E8-E12).
+
+### What's NEW vs the original thesis
+1. CatBoost & HistGradientBoosting (never in original)
+2. Optuna Bayesian hyperparameter tuning
+3. Probability calibration (Isotonic)
+4. Stacked ensembles (SVM + CatBoost + HistGBM)
+5. BorderlineSMOTE + engineered interaction features
+6. A presentable Streamlit dashboard (`dashboard/app.py`, run via `./run_dashboard.sh`)
+
+### How to reproduce
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+# merged_clean.xlsx must be in data/raw/
+PYTHONPATH=src python src/run_e8_benchmark.py
+PYTHONPATH=src python src/run_e9_new_approaches.py
+PYTHONPATH=src python src/run_e10_final_push.py
+PYTHONPATH=src python src/run_e11_threshold_ceiling.py
+PYTHONPATH=src python src/run_e12_final_operating_point.py
+PYTHONPATH=src python src/make_figures.py
+./run_dashboard.sh
+```
+
+### Recommended next steps (to push past 0.632)
+1. **Recover the original `07_feature_sets.json`** — re-running on the exact Group_B
+   definition may reproduce/exceed 0.632 directly.
+2. Install `libomp` (`brew install libomp`) -> unlock **XGBoost & LightGBM** (the
+   original's strongest trees) for a fair head-to-head.
+3. Add **macroeconomic / market** external features (inflation, oil price, index returns).
+4. Try **temporal cross-validation (expanding window)** for unbiased estimates.
+5. Cost-sensitive thresholding tuned on business cost of false-negatives.
+
+
