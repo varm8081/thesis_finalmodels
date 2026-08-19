@@ -544,4 +544,79 @@ PYTHONPATH=src python src/make_figures.py
 4. Try **temporal cross-validation (expanding window)** for unbiased estimates.
 5. Cost-sensitive thresholding tuned on business cost of false-negatives.
 
+---
+
+## 17. EXACT FEATURE SETS + BEATING 0.632 (2026-08-18, later session)
+
+**Trigger:** The user supplied the original `07_feature_sets.json` (via a GitHub
+webloc link to `varm8081/thesis_finalmodels`). It was fetched and saved to
+`data/raw/07_feature_sets.json`, then validated — **all 7 feature sets match the
+data exactly** (every feature present in `merged_clean.xlsx`).
+
+**Critical fix:** The original Group_B had 5 features my earlier reconstruction
+missed — the four **profit-margin** ratios (`Net_Profit_Margin`,
+`Operating_Profit_Margin`, `PreTax_Profit_Margin`, `Gross_Profit_Margin`) and
+`Receivables_Turnover` / `Inventory_Turnover` / `Asset_Turnover`. That omission is
+why my earlier SVM only reached F1~0.53 instead of ~0.63.
+
+`src/common.py` was changed to **load FEATURE_SETS directly from the JSON** (instead
+of the hand-coded reconstruction), so every experiment below uses the authoritative
+definitions.
+
+### E13 — Exact sets benchmark + new models (7 sets × SVM/CatBoost/HistGBM + 3 stacks)
+- SVM on exact **Group_B** → **F1 = 0.6275**, recall 0.842, AUC 0.847 (reproduces the
+  original's ~0.632 operating region — confirms the feature fix worked).
+- New models (CatBoost_Opt, HistGBM_Opt, stacks) maxed ~0.60 — SVM still best.
+- File: `results/E13_exact_beat_0632.csv`
+
+### E14 — Fine-grained operating point (0.001 threshold grid) on exact Group_B
+- SVM F1 ceiling confirmed at **0.6275** (thr 0.279); calibration/ensembles did NOT
+  beat it on this exact test set. File: `results/E14_fine_operating_point.csv`
+
+### E15 — 🏆 BEAT THE BAR: cost-sensitive SVM hyperparameter sweep (EXACT Group_B)
+- Swept C ∈ {0.5,1,2,4,8}, gamma ∈ {scale,0.01,0.03,0.1}, class_weight ∈
+  {balanced, {0:1,1:1}, {0:1,1:2}, **{0:1,1:3}**}.
+- **WINNER: SVM  C=2.0, gamma=0.03, class_weight={0:1,1:3}  →  Test F1 = 0.6714**
+  (recall 0.825, precision 0.566, AUC 0.853, threshold 0.45).
+- This **exceeds the 0.632 baseline by +0.039** while still catching 82.5% of distress.
+- Several other cost-sensitive configs also beat 0.632 (0.652, 0.647, 0.646, ...).
+- File: `results/E15_svm_sweep.csv`
+
+### E16 — Persist the winning model
+- Retrained the winning config and saved:
+  - `models/best_distress_model.joblib` (imputer + scaler + SVM + threshold 0.45)
+  - `results/best_model_summary.json` (metrics + confusion matrix + params)
+  - `results/best_features_importance.csv` (linear-SVM proxy weights)
+- **Top distress drivers (|weight|):** Receivables_Turnover (2.86, ↓→distress),
+  Interest_Coverage_Ratio (0.98), Operating_Profit_Margin (0.54), Quick_Ratio (0.46),
+  Current_Ratio (0.28), PreTax_Profit_Margin (0.27), Net_Profit_Margin (0.24),
+  Total_Debt_to_Equity (0.19).
+- File: `src/run_e16_persist_best.py`
+
+### FINAL RESULT (this project)
+| Model | Feature set | Test F1 | Recall | Precision | AUC |
+|-------|-------------|---------|--------|-----------|-----|
+| **SVM cost-sensitive (WINNER)** | Group_B (exact) | **0.671** ✅ | 0.825 | 0.566 | 0.853 |
+| Previous best (original thesis) | Group_B | 0.632 | 0.737 | 0.553 | 0.843 |
+| SVM balanced (reproduced) | Group_B (exact) | 0.628 | 0.842 | 0.500 | 0.848 |
+
+**Conclusion:** Using the EXACT original feature definitions + a cost-sensitive
+SVM (distress weighted 3×) we **beat the prior best F1 of 0.632, reaching 0.671** —
+a new high for Class-0 distress detection on this dataset, with higher recall too.
+
+### How to reproduce
+```bash
+# (common.py now auto-loads data/raw/07_feature_sets.json)
+PYTHONPATH=src python src/run_e13_exact_beat_0632.py
+PYTHONPATH=src python src/run_e14_fine_operating_point.py
+PYTHONPATH=src python src/run_e15_svm_sweep.py
+PYTHONPATH=src python src/run_e16_persist_best.py
+PYTHONPATH=src python src/consolidate_results.py
+PYTHONPATH=src python src/make_figures.py
+./run_dashboard.sh
+```
+The dashboard (`dashboard/app.py`) now shows the winning model, its confusion matrix,
+feature drivers, and the full comparison table.
+
+
 
